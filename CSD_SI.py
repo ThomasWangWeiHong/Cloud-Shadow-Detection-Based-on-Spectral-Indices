@@ -60,8 +60,7 @@ def cloud_shadow_detection(input_ms_file, output_cloud_mask_file, output_cloud_s
     T3 = np.min(img[:, :, (NIR - 1)]) + (t3 * (np.mean(img[:, :, (NIR - 1)]) - np.min(img[:, :, (NIR - 1)])))
     T4 = np.min(img[:, :, (B - 1)]) + (t4 * (np.mean(img[:, :, (B - 1)]) - np.min(img[:, :, (B - 1)])))
     
-    prelim_cloud_shadow_mask = np.uint8(np.expand_dims(np.logical_and(img[:, :, (NIR - 1)] < T3, img[:, :, (B - 1)] < T4), 
-                                                       axis = 2))
+    prelim_cloud_shadow_mask = np.uint8(np.logical_and(img[:, :, (NIR - 1)] < T3, img[:, :, (B - 1)] < T4))
     
     spatial_search_kernel = np.ones((T5, T6))
     non_pseudo_cloud_shadow_position_mask = np.uint8(cv2.filter2D(final_cloud_mask, -1, spatial_search_kernel) > 0)
