@@ -67,6 +67,7 @@ def cloud_shadow_detection(input_ms_file, output_cloud_mask_file, output_cloud_s
     
     refined_cloud_shadow_mask = prelim_cloud_shadow_mask * non_pseudo_cloud_shadow_position_mask
     final_cloud_shadow_mask = cv2.medianBlur(refined_cloud_shadow_mask, T8)
+    final_cloud_shadow_mask = np.expand_dims(final_cloud_shadow_mask, axis = 2)
     
     
     metadata['dtype'] = 'uint8'
