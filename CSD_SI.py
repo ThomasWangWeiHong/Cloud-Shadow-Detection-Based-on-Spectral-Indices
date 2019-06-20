@@ -51,26 +51,25 @@ def cloud_shadow_detection(input_ms_file, output_cloud_mask_file, output_cloud_s
     
     T2 = np.mean(ci_2) + (t2 * (np.max(ci_2) - np.mean(ci_2)))
     
-    prelim_cloud_mask = np.uint8(np.logical_and(np.abs(ci_1 - 1) < T1, ci_2 > T2))
+    prelim_cloud_mask = np.float32(np.logical_and(np.abs(ci_1 - 1) < T1, ci_2 > T2))
     final_cloud_mask = cv2.medianBlur(prelim_cloud_mask, T7)
-    final_cloud_mask = np.uint8(np.expand_dims(final_cloud_mask, axis = 2))
+    final_cloud_mask = np.expand_dims(final_cloud_mask, axis = 2)
     
     
     
     T3 = np.min(img[:, :, (NIR - 1)]) + (t3 * (np.mean(img[:, :, (NIR - 1)]) - np.min(img[:, :, (NIR - 1)])))
     T4 = np.min(img[:, :, (B - 1)]) + (t4 * (np.mean(img[:, :, (B - 1)]) - np.min(img[:, :, (B - 1)])))
     
-    prelim_cloud_shadow_mask = np.uint8(np.logical_and(img[:, :, (NIR - 1)] < T3, img[:, :, (B - 1)] < T4))
+    prelim_cloud_shadow_mask = np.float32(np.logical_and(img[:, :, (NIR - 1)] < T3, img[:, :, (B - 1)] < T4))
     
-    spatial_search_kernel = np.ones((T5, T6))
-    non_pseudo_cloud_shadow_position_mask = np.uint8(cv2.filter2D(final_cloud_mask, -1, spatial_search_kernel) > 0)
+    spatial_search_kernel = np.ones((T5, T6), dtype = np.float32)
+    non_pseudo_cloud_shadow_position_mask = cv2.filter2D(final_cloud_mask, -1, spatial_search_kernel) < 0
     
     refined_cloud_shadow_mask = prelim_cloud_shadow_mask * non_pseudo_cloud_shadow_position_mask
     final_cloud_shadow_mask = cv2.medianBlur(refined_cloud_shadow_mask, T8)
     final_cloud_shadow_mask = np.expand_dims(final_cloud_shadow_mask, axis = 2)
     
-    
-    metadata['dtype'] = 'uint8'
+
     metadata['count'] = 1
     
     with rasterio.open(output_cloud_mask_file, 'w', **metadata) as dst:
