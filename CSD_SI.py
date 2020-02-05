@@ -53,7 +53,7 @@ def cloud_shadow_detection(input_ms_file, output_cloud_mask_file, output_cloud_s
     
     prelim_cloud_mask = np.float32(np.logical_and(np.abs(ci_1 - 1) < T1, ci_2 > T2))
     final_cloud_mask = cv2.medianBlur(prelim_cloud_mask, T7)
-    final_cloud_mask = np.expand_dims(final_cloud_mask, axis = 2)
+    final_cloud_mask = np.expand_dims(final_cloud_mask, axis = 2).astype(np.uint8)
     
     
     
@@ -67,10 +67,11 @@ def cloud_shadow_detection(input_ms_file, output_cloud_mask_file, output_cloud_s
     
     refined_cloud_shadow_mask = prelim_cloud_shadow_mask * non_pseudo_cloud_shadow_position_mask
     final_cloud_shadow_mask = cv2.medianBlur(refined_cloud_shadow_mask, T8)
-    final_cloud_shadow_mask = np.expand_dims(final_cloud_shadow_mask, axis = 2)
+    final_cloud_shadow_mask = np.expand_dims(final_cloud_shadow_mask, axis = 2).astype(np.uint8)
     
 
     metadata['count'] = 1
+    metadata['dtype'] = 'uint8'
     
     with rasterio.open(output_cloud_mask_file, 'w', **metadata) as dst:
         dst.write(np.transpose(final_cloud_mask, [2, 0, 1]))
